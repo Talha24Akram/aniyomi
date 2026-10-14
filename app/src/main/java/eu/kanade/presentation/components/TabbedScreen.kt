@@ -83,7 +83,7 @@ fun TabbedScreen(
                 end = contentPadding.calculateEndPadding(LocalLayoutDirection.current),
             ),
         ) {
-            FlexibleTabRow(
+            if (tabs.size > 1) FlexibleTabRow(
                 scrollable = scrollable,
                 selectedTabIndex = state.currentPage,
             ) {
