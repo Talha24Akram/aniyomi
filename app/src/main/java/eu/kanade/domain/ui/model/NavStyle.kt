@@ -41,7 +41,6 @@ enum class NavStyle(
         get() {
             return mutableListOf(
                 AnimeLibraryTab,
-                MangaLibraryTab,
                 UpdatesTab,
                 HistoriesTab,
                 BrowseTab,

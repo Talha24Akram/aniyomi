@@ -51,10 +51,6 @@ object SettingsBrowseScreen : SearchableSettings {
                         preference = sourcePreferences.hideInAnimeLibraryItems(),
                         title = stringResource(AYMR.strings.pref_hide_in_anime_library_items),
                     ),
-                    Preference.PreferenceItem.SwitchPreference(
-                        preference = sourcePreferences.hideInMangaLibraryItems(),
-                        title = stringResource(AYMR.strings.pref_hide_in_manga_library_items),
-                    ),
                     Preference.PreferenceItem.TextPreference(
                         title = stringResource(AYMR.strings.label_anime_extension_repos),
                         subtitle = pluralStringResource(
@@ -64,17 +60,6 @@ object SettingsBrowseScreen : SearchableSettings {
                         ),
                         onClick = {
                             navigator.push(AnimeExtensionStoresScreen())
-                        },
-                    ),
-                    Preference.PreferenceItem.TextPreference(
-                        title = stringResource(AYMR.strings.label_manga_extension_repos),
-                        subtitle = pluralStringResource(
-                            MR.plurals.num_repos,
-                            mangaReposCount,
-                            mangaReposCount,
-                        ),
-                        onClick = {
-                            navigator.push(MangaExtensionReposScreen())
                         },
                     ),
                 ),

@@ -53,15 +53,9 @@ fun TabbedScreen(
                 val tab = tabs[state.currentPage]
                 val searchEnabled = tab.searchEnabled
 
-                val actualQuery = when (state.currentPage % 2) {
-                    1 -> mangaSearchQuery // History and Browse
-                    else -> animeSearchQuery
-                }
+                val actualQuery = animeSearchQuery // fork: anime only
 
-                val actualOnChange = when (state.currentPage % 2) {
-                    1 -> onChangeMangaSearchQuery // History and Browse
-                    else -> onChangeAnimeSearchQuery
-                }
+                val actualOnChange = onChangeAnimeSearchQuery
 
                 SearchToolbar(
                     titleContent = {

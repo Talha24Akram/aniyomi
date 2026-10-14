@@ -133,6 +133,7 @@ object SettingsAppearanceScreen : SearchableSettings {
                 Preference.PreferenceItem.ListPreference(
                     preference = uiPreferences.startScreen(),
                     entries = StartScreen.entries
+                        .filter { it != StartScreen.MANGA } // fork: anime only
                         .associateWith { stringResource(it.titleRes) }
                         .toImmutableMap(),
                     title = stringResource(AYMR.strings.pref_start_screen),
@@ -144,6 +145,7 @@ object SettingsAppearanceScreen : SearchableSettings {
                 Preference.PreferenceItem.ListPreference(
                     preference = uiPreferences.navStyle(),
                     entries = NavStyle.entries
+                        .filter { it != NavStyle.MOVE_MANGA_TO_MORE } // fork: anime only
                         .associateWith { stringResource(it.titleRes) }
                         .toImmutableMap(),
                     title = "Navigation Style",
