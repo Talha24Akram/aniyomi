@@ -9,6 +9,7 @@ class AudioPreferences(
     private val preferenceStore: PreferenceStore,
 ) {
     fun preferredAudioLanguages() = preferenceStore.getString("pref_audio_lang", "")
+    fun lastAudioTrack() = preferenceStore.getString("pref_last_audio_track", "")
     fun enablePitchCorrection() = preferenceStore.getBoolean("pref_audio_pitch_correction", true)
     fun audioChannels() = preferenceStore.getEnum("pref_audio_config", AudioChannels.AutoSafe)
     fun volumeBoostCap() = preferenceStore.getInt("pref_audio_volume_boost_cap", 30)

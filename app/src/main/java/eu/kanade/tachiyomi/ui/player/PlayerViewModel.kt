@@ -76,8 +76,10 @@ import eu.kanade.tachiyomi.ui.player.controls.components.sheets.HosterState
 import eu.kanade.tachiyomi.ui.player.controls.components.sheets.getChangedAt
 import eu.kanade.tachiyomi.ui.player.loader.EpisodeLoader
 import eu.kanade.tachiyomi.ui.player.loader.HosterLoader
+import eu.kanade.tachiyomi.ui.player.settings.AudioPreferences
 import eu.kanade.tachiyomi.ui.player.settings.GesturePreferences
 import eu.kanade.tachiyomi.ui.player.settings.PlayerPreferences
+import eu.kanade.tachiyomi.ui.player.settings.SubtitlePreferences
 import eu.kanade.tachiyomi.ui.player.utils.AniSkipApi
 import eu.kanade.tachiyomi.ui.player.utils.ChapterUtils.Companion.getStringRes
 import eu.kanade.tachiyomi.ui.player.utils.TrackSelect
@@ -172,6 +174,8 @@ class PlayerViewModel @JvmOverloads constructor(
     private val basePreferences: BasePreferences = Injekt.get(),
     private val getCustomButtons: GetCustomButtons = Injekt.get(),
     private val trackSelect: TrackSelect = Injekt.get(),
+    private val subtitlePreferences: SubtitlePreferences = Injekt.get(),
+    private val audioPreferences: AudioPreferences = Injekt.get(),
     private val getIncognitoState: GetAnimeIncognitoState = Injekt.get(),
     private val libraryPreferences: LibraryPreferences = Injekt.get(),
     uiPreferences: UiPreferences = Injekt.get(),
@@ -453,14 +457,33 @@ class PlayerViewModel @JvmOverloads constructor(
      * or select the first one in the list if trackSelect fails.
      */
     fun onFinishLoadingTracks() {
-        val preferredSubtitle = trackSelect.getPreferredTrackIndex(subtitleTracks.value)
-        (preferredSubtitle ?: subtitleTracks.value.firstOrNull())?.let {
-            activity.player.sid = it.id
-            activity.player.secondarySid = -1
+        val subs = subtitleTracks.value
+        val rememberedSub = subtitlePreferences.lastSubtitleTrack().get()
+        val rememberedSecondary = subtitlePreferences.lastSecondarySubtitleTrack().get()
+        val primary = subs.firstOrNull { it.id != -1 && it.name == rememberedSub }
+        when {
+            rememberedSub == REMEMBER_OFF -> {
+                activity.player.sid = -1
+                activity.player.secondarySid = -1
+            }
+            primary != null -> {
+                activity.player.sid = primary.id
+                activity.player.secondarySid =
+                    subs.firstOrNull { it.id != -1 && it.id != primary.id && it.name == rememberedSecondary }?.id ?: -1
+            }
+            else -> {
+                val preferredSubtitle = trackSelect.getPreferredTrackIndex(subs)
+                (preferredSubtitle ?: subs.firstOrNull())?.let {
+                    activity.player.sid = it.id
+                    activity.player.secondarySid = -1
+                }
+            }
         }
 
-        val preferredAudio = trackSelect.getPreferredTrackIndex(audioTracks.value, subtitle = false)
-        (preferredAudio ?: audioTracks.value.getOrNull(1))?.let {
+        val audios = audioTracks.value
+        val rememberedAudio = audios.firstOrNull { it.id != -1 && it.name == audioPreferences.lastAudioTrack().get() }
+        val preferredAudio = rememberedAudio ?: trackSelect.getPreferredTrackIndex(audios, subtitle = false)
+        (preferredAudio ?: audios.getOrNull(1))?.let {
             activity.player.aid = it.id
         }
 
@@ -522,6 +545,7 @@ class PlayerViewModel @JvmOverloads constructor(
 
     fun selectAudio(id: Int) {
         activity.player.aid = id
+        audioTracks.value.firstOrNull { it.id == id }?.let { audioPreferences.lastAudioTrack().set(it.name) }
     }
 
     fun updateAudio(id: Int) {
@@ -558,6 +582,13 @@ class PlayerViewModel @JvmOverloads constructor(
         }
         activity.player.secondarySid = _selectedSubtitles.value.second
         activity.player.sid = _selectedSubtitles.value.first
+
+        val (first, second) = _selectedSubtitles.value
+        val tracks = subtitleTracks.value
+        subtitlePreferences.lastSubtitleTrack().set(
+            if (first == -1) REMEMBER_OFF else tracks.firstOrNull { it.id == first }?.name ?: "",
+        )
+        subtitlePreferences.lastSecondarySubtitleTrack().set(tracks.firstOrNull { it.id == second }?.name ?: "")
     }
 
     fun updateSubtitle(sid: Int, secondarySid: Int) {
@@ -2175,3 +2206,5 @@ fun CustomButton.executeLongPress() {
 fun Float.normalize(inMin: Float, inMax: Float, outMin: Float, outMax: Float): Float {
     return (this - inMin) * (outMax - outMin) / (inMax - inMin) + outMin
 }
+
+private const val REMEMBER_OFF = "\u0000off"

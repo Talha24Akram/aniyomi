@@ -48,6 +48,10 @@ class SubtitlePreferences(
 
     fun overrideSubsASS() = preferenceStore.getBoolean("pref_override_subtitles_ass", false)
 
+    // Last track the user picked by hand ("" = never chose, OFF = subtitles off); matched by name on the next episode.
+    fun lastSubtitleTrack() = preferenceStore.getString("pref_last_subtitle_track", "")
+    fun lastSecondarySubtitleTrack() = preferenceStore.getString("pref_last_secondary_subtitle_track", "")
+
     fun subtitlesDelay() = preferenceStore.getInt("pref_subtitles_delay", 0)
     fun subtitlesSpeed() = preferenceStore.getFloat("pref_subtitles_speed", 1f)
     fun subtitlesSecondaryDelay() = preferenceStore.getInt("pref_subtitles_secondary_delay", 0)

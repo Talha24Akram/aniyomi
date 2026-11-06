@@ -260,7 +260,7 @@ fun ExpandableAnimeDescription(
             mutableStateOf(defaultExpandState)
         }
         val desc =
-            description.takeIf { !it.isNullOrBlank() } ?: stringResource(
+            cleanSourceDescription(description).takeIf { it.isNotBlank() } ?: stringResource(
                 MR.strings.description_placeholder,
             )
         val trimmedDescription = remember(desc) {
@@ -727,4 +727,23 @@ private fun RowScope.AnimeActionButton(
             )
         }
     }
+}
+
+private val junkInfoKeys = setOf("Alternative Titles", "Trackers", "Streaming", "Trailer")
+private val infoLineRegex = Regex("""^\*\*(.+?)\*\*:\s*(.*)$""")
+
+/**
+ * Some sources (Re:ANIME) append a block of `**Key**: value` lines with tracker/streaming/trailer links.
+ * Drop the link-heavy ones, keep the useful ones (format, airing, season, duration, rating) as "Key: value".
+ */
+fun cleanSourceDescription(description: String?): String {
+    if (description.isNullOrBlank()) return ""
+    return description.lines()
+        .mapNotNull { line ->
+            val m = infoLineRegex.find(line.trim()) ?: return@mapNotNull line
+            val key = m.groupValues[1]
+            if (key in junkInfoKeys) null else "$key: ${m.groupValues[2]}"
+        }
+        .joinToString("\n")
+        .trimEnd()
 }
