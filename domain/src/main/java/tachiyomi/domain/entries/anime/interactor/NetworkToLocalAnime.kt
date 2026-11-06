@@ -1,6 +1,7 @@
 package tachiyomi.domain.entries.anime.interactor
 
 import tachiyomi.domain.entries.anime.model.Anime
+import tachiyomi.domain.entries.anime.model.AnimeUpdate
 import tachiyomi.domain.entries.anime.repository.AnimeRepository
 import tachiyomi.domain.source.anime.service.AnimeSourceManager
 
@@ -16,13 +17,13 @@ class NetworkToLocalAnime(
                 val id = insertAnime(anime)
                 anime.copy(id = id!!)
             }
-            !localAnime.favorite -> {
-                // if the anime isn't a favorite, set its display title from source
-                // if it later becomes a favorite, updated title will go to db
-                localAnime.copy(title = anime.title)
-            }
             else -> {
-                localAnime
+                // Fork: keep the stored title in sync with the source's current title (e.g. after
+                // switching an extension's title language), so lists don't show stale titles.
+                if (anime.title.isNotBlank() && anime.title != localAnime.title) {
+                    animeRepository.updateAnime(AnimeUpdate(id = localAnime.id, title = anime.title))
+                }
+                localAnime.copy(title = anime.title)
             }
         }
     }
