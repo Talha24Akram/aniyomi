@@ -96,6 +96,7 @@ import eu.kanade.tachiyomi.util.system.toast
 import `is`.xyz.mpv.MPVLib
 import `is`.xyz.mpv.Utils
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -1423,6 +1424,23 @@ class PlayerViewModel @JvmOverloads constructor(
 
             try {
                 coroutineScope {
+                    // Fork: don't wait for the slowest hoster. If no preferred video shows up within a
+                    // short grace period after the first hoster is ready, play the best available one.
+                    val firstReady = CompletableDeferred<Unit>()
+                    val graceJob = launch {
+                        firstReady.await()
+                        delay(HOSTER_GRACE_MS)
+                        if (hasFoundPreferredVideo.compareAndSet(false, true)) {
+                            if (selectedHosterVideoIndex.value == Pair(-1, -1)) {
+                                val (hosterIdx, videoIdx) = HosterLoader.selectBestVideo(hosterState.value)
+                                val video = (hosterState.value.getOrNull(hosterIdx) as? HosterState.Ready)
+                                    ?.videoList?.getOrNull(videoIdx)
+                                if (video == null || !loadVideo(source, video, hosterIdx, videoIdx)) {
+                                    hasFoundPreferredVideo.set(false)
+                                }
+                            }
+                        }
+                    }
                     hosterList.mapIndexed { hosterIdx, hoster ->
                         async {
                             val hosterState = EpisodeLoader.loadHosterVideos(source, hoster)
@@ -1430,6 +1448,7 @@ class PlayerViewModel @JvmOverloads constructor(
                             _hosterState.updateAt(hosterIdx, hosterState)
 
                             if (hosterState is HosterState.Ready) {
+                                firstReady.complete(Unit)
                                 if (hosterIdx == hosterIndex) {
                                     hosterState.videoList.getOrNull(videoIndex)?.let {
                                         hasFoundPreferredVideo.set(true)
@@ -1460,6 +1479,7 @@ class PlayerViewModel @JvmOverloads constructor(
                             }
                         }
                     }.awaitAll()
+                    graceJob.cancel()
 
                     if (hasFoundPreferredVideo.compareAndSet(false, true)) {
                         if (selectedHosterVideoIndex.value == Pair(-1, -1)) {
@@ -2208,3 +2228,5 @@ fun Float.normalize(inMin: Float, inMax: Float, outMin: Float, outMax: Float): F
 }
 
 private const val REMEMBER_OFF = "\u0000off"
+
+private const val HOSTER_GRACE_MS = 3000L
