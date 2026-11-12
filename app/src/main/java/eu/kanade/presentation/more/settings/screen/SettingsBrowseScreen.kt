@@ -13,6 +13,7 @@ import eu.kanade.domain.source.service.SourcePreferences
 import eu.kanade.presentation.more.settings.Preference
 import eu.kanade.presentation.more.settings.screen.browse.AnimeExtensionStoresScreen
 import eu.kanade.presentation.more.settings.screen.browse.MangaExtensionReposScreen
+import eu.kanade.tachiyomi.extension.ExtensionAutoUpdateJob
 import eu.kanade.tachiyomi.util.system.AuthenticatorUtil.authenticate
 import kotlinx.collections.immutable.persistentListOf
 import mihon.domain.extension.anime.interactor.GetAnimeExtensionStoreCountAsFlow
@@ -60,6 +61,20 @@ object SettingsBrowseScreen : SearchableSettings {
                         ),
                         onClick = {
                             navigator.push(AnimeExtensionStoresScreen())
+                        },
+                    ),
+                ),
+            ),
+            Preference.PreferenceGroup(
+                title = "Extensions",
+                preferenceItems = persistentListOf(
+                    Preference.PreferenceItem.SwitchPreference(
+                        preference = sourcePreferences.autoUpdateExtensions(),
+                        title = "Auto-update extensions",
+                        subtitle = "Check every 6 hours and install updates in the background",
+                        onValueChanged = {
+                            ExtensionAutoUpdateJob.setupTask(context, it)
+                            true
                         },
                     ),
                 ),

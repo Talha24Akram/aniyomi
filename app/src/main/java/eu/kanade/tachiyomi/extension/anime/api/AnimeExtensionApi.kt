@@ -34,6 +34,7 @@ internal class AnimeExtensionApi {
     suspend fun checkForUpdates(
         context: Context,
         fromAvailableExtensionList: Boolean = false,
+        notify: Boolean = true,
     ): List<AnimeExtension.Installed>? {
         // Limit checks to once a day at most
         if (fromAvailableExtensionList &&
@@ -68,7 +69,7 @@ internal class AnimeExtensionApi {
             }
         }
 
-        if (extensionsWithUpdate.isNotEmpty()) {
+        if (notify && extensionsWithUpdate.isNotEmpty()) {
             ExtensionUpdateNotifier(context).promptUpdates(
                 names = extensionsWithUpdate.map { it.name },
                 anime = true,

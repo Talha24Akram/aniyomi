@@ -69,6 +69,7 @@ internal class MangaExtensionApi {
     suspend fun checkForUpdates(
         context: Context,
         fromAvailableExtensionList: Boolean = false,
+        notify: Boolean = true,
     ): List<MangaExtension.Installed>? {
         // Limit checks to once a day at most
         if (fromAvailableExtensionList &&
@@ -102,7 +103,7 @@ internal class MangaExtensionApi {
             }
         }
 
-        if (extensionsWithUpdate.isNotEmpty()) {
+        if (notify && extensionsWithUpdate.isNotEmpty()) {
             ExtensionUpdateNotifier(context).promptUpdates(extensionsWithUpdate.map { it.name })
         }
 

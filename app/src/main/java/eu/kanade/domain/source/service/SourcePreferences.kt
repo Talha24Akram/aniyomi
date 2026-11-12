@@ -71,6 +71,9 @@ class SourcePreferences(
         -1,
     )
 
+    // Fork: install extension updates in the background
+    fun autoUpdateExtensions() = preferenceStore.getBoolean("auto_update_extensions", true)
+
     fun animeExtensionUpdatesCount() = preferenceStore.getInt("animeext_updates_count", 0)
     fun mangaExtensionUpdatesCount() = preferenceStore.getInt("ext_updates_count", 0)
 
