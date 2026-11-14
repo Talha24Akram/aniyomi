@@ -285,6 +285,7 @@ class AniyomiMPVView(context: Context, attributes: AttributeSet) : BaseMPVView(c
         MPVLib.setOptionString("sub-border-style", subtitlePreferences.borderStyleSubtitles().get().value)
         MPVLib.setOptionString("sub-shadow-offset", subtitlePreferences.shadowOffsetSubtitles().get().toString())
         MPVLib.setOptionString("sub-pos", subtitlePreferences.subtitlePos().get().toString())
+        MPVLib.setOptionString("secondary-sub-pos", subtitlePreferences.subtitleSecondaryPos().get().toString())
         MPVLib.setOptionString("sub-scale", subtitlePreferences.subtitleFontScale().get().toString())
     }
 }

@@ -317,6 +317,7 @@
     <string name="player_sheets_sub_override_ass">Override ASS/SSA subtitles</string>
     <string name="player_sheets_sub_scale">Scale</string>
     <string name="player_sheets_sub_position">Position</string>
+    <string name="player_sheets_sub_secondary_position">Dub / second subtitle position</string>
     <!-- Sheets - Subtitles -->
     <string name="player_sheets_subtitles_border_style_outline_and_shadow">Outline and shadow</string>
     <string name="player_sheets_subtitles_border_style_opaque_box">Opaque box</string>

@@ -91,6 +91,9 @@ fun SubtitlesMiscellaneousCard(modifier: Modifier = Modifier) {
             var subPos by remember {
                 mutableStateOf(MPVLib.getPropertyInt("sub-pos"))
             }
+            var subSecondaryPos by remember {
+                mutableStateOf(MPVLib.getPropertyInt("secondary-sub-pos") ?: preferences.subtitleSecondaryPos().get())
+            }
             SliderItem(
                 label = stringResource(AYMR.strings.player_sheets_sub_scale),
                 value = subScale,
@@ -125,6 +128,23 @@ fun SubtitlesMiscellaneousCard(modifier: Modifier = Modifier) {
                     )
                 },
             )
+            SliderItem(
+                label = stringResource(AYMR.strings.player_sheets_sub_secondary_position),
+                value = subSecondaryPos,
+                valueText = subSecondaryPos.toString(),
+                onChange = {
+                    subSecondaryPos = it
+                    preferences.subtitleSecondaryPos().set(it)
+                    MPVLib.setPropertyInt("secondary-sub-pos", it)
+                },
+                max = 150,
+                icon = {
+                    Icon(
+                        Icons.Default.AlignVerticalCenter,
+                        null,
+                    )
+                },
+            )
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -136,6 +156,10 @@ fun SubtitlesMiscellaneousCard(modifier: Modifier = Modifier) {
                         preferences.subtitlePos().deleteAndGet().let {
                             subPos = it
                             MPVLib.setPropertyInt("sub-pos", it)
+                        }
+                        preferences.subtitleSecondaryPos().deleteAndGet().let {
+                            subSecondaryPos = it
+                            MPVLib.setPropertyInt("secondary-sub-pos", it)
                         }
                         preferences.subtitleFontScale().deleteAndGet().let {
                             subScale = it
