@@ -27,6 +27,8 @@ class HosterLoader {
         fun selectBestVideo(hosterState: List<HosterState>): Pair<Int, Int> {
             val availableHosters = hosterState.withIndex()
                 .filter { (_, state) -> state is HosterState.Ready }
+                // Fork: raw "Download" files (huge bitrates) only as a last resort
+                .sortedBy { (_, state) -> state.name.contains("Download", true) }
 
             // Check for first preferred
             val isPreferred: (Pair<Video, Video.State>) -> Boolean = { (v, s) ->

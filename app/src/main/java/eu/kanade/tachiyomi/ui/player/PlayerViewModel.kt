@@ -1441,6 +1441,11 @@ class PlayerViewModel @JvmOverloads constructor(
                             }
                         }
                     }
+                    // Fork: raw "Download" files can be huge (70+ Mbps), so wait longer for a stream hoster
+                    val downloadFallback = launch {
+                        delay(HOSTER_DOWNLOAD_GRACE_MS)
+                        firstReady.complete(Unit)
+                    }
                     hosterList.mapIndexed { hosterIdx, hoster ->
                         async {
                             val hosterState = EpisodeLoader.loadHosterVideos(source, hoster)
@@ -1448,7 +1453,7 @@ class PlayerViewModel @JvmOverloads constructor(
                             _hosterState.updateAt(hosterIdx, hosterState)
 
                             if (hosterState is HosterState.Ready) {
-                                firstReady.complete(Unit)
+                                if (!hoster.hosterName.contains("Download", true)) firstReady.complete(Unit)
                                 if (hosterIdx == hosterIndex) {
                                     hosterState.videoList.getOrNull(videoIndex)?.let {
                                         hasFoundPreferredVideo.set(true)
@@ -1460,7 +1465,7 @@ class PlayerViewModel @JvmOverloads constructor(
                                 }
 
                                 val prefIndex = hosterState.videoList.indexOfFirst { it.preferred }
-                                if (prefIndex != -1 && hosterIndex == -1) {
+                                if (prefIndex != -1 && hosterIndex == -1 && !hoster.hosterName.contains("Download", true)) {
                                     if (hasFoundPreferredVideo.compareAndSet(false, true)) {
                                         if (selectedHosterVideoIndex.value == Pair(-1, -1)) {
                                             val success =
@@ -1480,6 +1485,7 @@ class PlayerViewModel @JvmOverloads constructor(
                         }
                     }.awaitAll()
                     graceJob.cancel()
+                    downloadFallback.cancel()
 
                     if (hasFoundPreferredVideo.compareAndSet(false, true)) {
                         if (selectedHosterVideoIndex.value == Pair(-1, -1)) {
@@ -2236,3 +2242,4 @@ fun Float.normalize(inMin: Float, inMax: Float, outMin: Float, outMax: Float): F
 private const val REMEMBER_OFF = "\u0000off"
 
 private const val HOSTER_GRACE_MS = 3000L
+private const val HOSTER_DOWNLOAD_GRACE_MS = 15000L
