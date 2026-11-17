@@ -148,7 +148,7 @@ class AniyomiMPVView(context: Context, attributes: AttributeSet) : BaseMPVView(c
         MPVLib.setOptionString("cache", "yes")
         MPVLib.setOptionString("cache-secs", "300")
         MPVLib.setOptionString("demuxer-readahead-secs", "300")
-        MPVLib.setOptionString("cache-pause-wait", "8")
+        MPVLib.setOptionString("cache-pause-wait", "25")
         MPVLib.setOptionString("network-timeout", "20")
         MPVLib.setOptionString(
             "stream-lavf-o",

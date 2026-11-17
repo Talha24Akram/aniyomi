@@ -42,7 +42,7 @@ object PlaybackTrace {
                 "cacheSpeed=${prop("cache-speed")}B/s fwdBytes=${prop("demuxer-cache-state/fw-bytes")} " +
                 "vBitrate=${prop("video-bitrate")} aBitrate=${prop("audio-bitrate")} " +
                 "drop=${prop("frame-drop-count")}/${prop("decoder-frame-drop-count")} " +
-                "res=${prop("video-params/w")}x${prop("video-params/h")} hwdec=${prop("hwdec-current")} url=$path",
+                "res=${prop("video-params/w")}x${prop("video-params/h")} hwdec=${prop("hwdec-current")} size=${prop("file-size")} dur=${prop("duration")} url=$path",
         )
     }
 

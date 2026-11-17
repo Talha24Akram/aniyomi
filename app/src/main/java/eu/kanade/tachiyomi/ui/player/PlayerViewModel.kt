@@ -1564,6 +1564,12 @@ class PlayerViewModel @JvmOverloads constructor(
             selectedHosterState.getChangedAt(videoIndex, resolvedVideo, Video.State.READY),
         )
 
+        PlaybackTrace.log(
+            "VIDEO-SELECTED h=$hosterIndex v=$videoIndex title=${resolvedVideo.videoTitle} res=${resolvedVideo.resolution} " +
+                "br=${resolvedVideo.bitrate} | all=" + _hosterState.value.mapIndexed { hi, h ->
+                (h as? HosterState.Ready)?.videoList?.joinToString(",", "[", "]") { "${it.videoTitle}/${it.resolution}" } ?: "$hi:-"
+            }.joinToString(" "),
+        )
         _currentVideo.update { _ -> resolvedVideo }
 
         qualityIndex = Pair(hosterIndex, videoIndex)
