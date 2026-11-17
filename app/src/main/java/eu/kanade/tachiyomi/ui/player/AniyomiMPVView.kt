@@ -143,11 +143,15 @@ class AniyomiMPVView(context: Context, attributes: AttributeSet) : BaseMPVView(c
         MPVLib.setOptionString("demuxer-max-bytes", "${cacheMegs * 1024 * 1024}")
         MPVLib.setOptionString("demuxer-max-back-bytes", "${cacheMegs * 1024 * 1024}")
         // Fork: buffer further ahead and ride out stalled or dropped HLS segments instead of stuttering
-        MPVLib.setOptionString("demuxer-max-bytes", "${cacheMegs * 2 * 1024 * 1024}")
+        MPVLib.setOptionString("demuxer-max-bytes", "${3L * 1024 * 1024 * 1024}")
         MPVLib.setOptionString("demuxer-max-back-bytes", "${16 * 1024 * 1024}")
+        // Fork: spill the read-ahead to disk so a heavy (high-bitrate) stretch is absorbed by buffering the whole episode early
+        java.io.File(context.cacheDir, "mpv-demux").also { it.mkdirs() }.let {
+            MPVLib.setOptionString("demuxer-cache-dir", it.path)
+        }
         MPVLib.setOptionString("cache", "yes")
-        MPVLib.setOptionString("cache-secs", "300")
-        MPVLib.setOptionString("demuxer-readahead-secs", "300")
+        MPVLib.setOptionString("cache-secs", "3600")
+        MPVLib.setOptionString("demuxer-readahead-secs", "3600")
         MPVLib.setOptionString("cache-pause-wait", "25")
         MPVLib.setOptionString("network-timeout", "20")
         MPVLib.setOptionString(
