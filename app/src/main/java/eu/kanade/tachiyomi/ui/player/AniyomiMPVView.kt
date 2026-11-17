@@ -138,6 +138,18 @@ class AniyomiMPVView(context: Context, attributes: AttributeSet) : BaseMPVView(c
         val cacheMegs = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) 64 else 32
         MPVLib.setOptionString("demuxer-max-bytes", "${cacheMegs * 1024 * 1024}")
         MPVLib.setOptionString("demuxer-max-back-bytes", "${cacheMegs * 1024 * 1024}")
+        // Fork: buffer further ahead and ride out stalled or dropped HLS segments instead of stuttering
+        MPVLib.setOptionString("demuxer-max-bytes", "${cacheMegs * 2 * 1024 * 1024}")
+        MPVLib.setOptionString("demuxer-max-back-bytes", "${16 * 1024 * 1024}")
+        MPVLib.setOptionString("cache", "yes")
+        MPVLib.setOptionString("cache-secs", "300")
+        MPVLib.setOptionString("demuxer-readahead-secs", "300")
+        MPVLib.setOptionString("cache-pause-wait", "8")
+        MPVLib.setOptionString("network-timeout", "20")
+        MPVLib.setOptionString(
+            "stream-lavf-o",
+            "reconnect=1,reconnect_streamed=1,reconnect_on_network_error=1,reconnect_on_http_error=4xx,5xx,reconnect_delay_max=4",
+        )
         //
         val screenshotDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
         screenshotDir.mkdirs()
