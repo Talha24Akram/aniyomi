@@ -666,6 +666,7 @@ class PlayerActivity : BaseActivity() {
         if (player.isExiting) return
         when (property) {
             "time-pos" -> {
+                PlaybackTrace.sample()
                 viewModel.updatePlayBackPos(value.toFloat())
                 viewModel.setChapter(value.toFloat())
             }
@@ -707,6 +708,7 @@ class PlayerActivity : BaseActivity() {
             }
 
             "paused-for-cache" -> {
+                PlaybackTrace.snapshot(if (value) "BUFFERING-START" else "BUFFERING-END")
                 viewModel.isLoading.update { value }
             }
 
